@@ -27,6 +27,18 @@ weather$time <- as.POSIXct(weather$time, format = "%Y-%m-%dT%H:%M",
                            tz = "America/New_York")
 weather$rain <- weather$precipitation_inches > 0
 
+# Infer next 3 days of temperatures using daily cycle model
+weather$hour <- as.numeric(format(weather$time, "%H"))
+fit <- lm(temperature_f ~ sin(2 * pi * hour / 24) + cos(2 * pi * hour / 24), data = weather)
+
+last_time <- max(weather$time)
+future_times <- seq(last_time, last_time + 3 * 86400, by = "1 hour")
+future_weather <- data.frame(
+  time = future_times,
+  hour = as.numeric(format(future_times, "%H"))
+)
+future_weather$temperature_f <- predict(fit, newdata = future_weather)
+
 temperature_high <- max(weather$temperature_f)
 temperature_low <- min(weather$temperature_f)
 rain_total <- sum(weather$precipitation_inches)
@@ -38,7 +50,7 @@ This report uses hourly observations for **Sarasota, Florida**, from **`r date_s
 
 ```{r}
 #| label: temperature-plot
-#| fig-cap: "Hourly temperature trace across the week."
+#| fig-cap: "Hourly temperature trace with a 3-day inferred projection."
 #| fig-width: 10
 #| fig-height: 5
 #| out-width: 100%
@@ -46,6 +58,8 @@ This report uses hourly observations for **Sarasota, Florida**, from **`r date_s
 ggplot(weather, aes(x = time, y = temperature_f)) +
   geom_area(fill = "#f6b26b", alpha = 0.28) +
   geom_line(color = "#c44e36", linewidth = 1.1) +
+  geom_line(data = future_weather, aes(x = time, y = temperature_f),
+            color = "#e67e22", linetype = "dotted", linewidth = 1.1) +
   geom_hline(yintercept = mean(weather$temperature_f),
              linetype = "dashed", color = "#5f6b66", linewidth = 0.6) +
   annotate("text", x = min(weather$time), y = mean(weather$temperature_f) + 0.7,
@@ -57,7 +71,7 @@ ggplot(weather, aes(x = time, y = temperature_f)) +
   coord_cartesian(ylim = c(75, 90), expand = FALSE) +
   labs(x = NULL, y = NULL,
        title = "A warm week by the Gulf",
-       subtitle = "Hourly temperature trace in Fahrenheit") +
+       subtitle = "Hourly temperature trace (solid red) and 3-day projection (dotted orange)") +
   theme_minimal(base_size = 13) +
   theme(
     plot.title = element_text(face = "bold", size = 19, color = "#243b3a"),
