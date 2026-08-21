@@ -51,8 +51,9 @@ ggplot(weather, aes(x = time, y = temperature_f)) +
            label = paste0("7-day average: ", round(mean(weather$temperature_f), 1), " F"),
            hjust = 0, color = "#5f6b66", size = 3.5) +
   scale_x_datetime(date_breaks = "1 day", date_labels = "%b %d") +
-  scale_y_continuous(limits = c(75, 90), breaks = seq(75, 90, by = 5),
-                     labels = \(x) paste0(x, " F"), expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(75, 90, by = 5),
+                     labels = \(x) paste0(x, " F")) +
+  coord_cartesian(ylim = c(75, 90), expand = FALSE) +
   labs(x = NULL, y = NULL,
        title = "A warm week by the Gulf",
        subtitle = "Hourly temperature trace in Fahrenheit") +
