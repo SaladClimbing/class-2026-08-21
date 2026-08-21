@@ -36,16 +36,15 @@ date_end <- format(max(weather$time), "%B %d, %Y")
 This report uses hourly observations for **Sarasota, Florida**, from **`r date_start` through `r date_end`**. Temperatures are shown in Fahrenheit, wind speed in miles per hour, and precipitation in inches.
 
 ```{r}
-#| label: weather-plot
-#| fig-cap: "Hourly temperature, with precipitation shown along the baseline."
+#| label: temperature-plot
+#| fig-cap: "Hourly temperature trace across the week."
 #| fig-width: 10
-#| fig-height: 6
+#| fig-height: 5
 #| out-width: 100%
 
 ggplot(weather, aes(x = time, y = temperature_f)) +
   geom_area(fill = "#f6b26b", alpha = 0.28) +
   geom_line(color = "#c44e36", linewidth = 1.1) +
-  geom_point(data = subset(weather, rain), color = "#277da1", size = 2.8) +
   geom_hline(yintercept = mean(weather$temperature_f),
              linetype = "dashed", color = "#5f6b66", linewidth = 0.6) +
   annotate("text", x = min(weather$time), y = mean(weather$temperature_f) + 0.7,
@@ -56,10 +55,36 @@ ggplot(weather, aes(x = time, y = temperature_f)) +
                      labels = \(x) paste0(x, " F"), expand = c(0, 0)) +
   labs(x = NULL, y = NULL,
        title = "A warm week by the Gulf",
-       subtitle = "Hourly temperature trace; blue points mark hours with measurable rain") +
+       subtitle = "Hourly temperature trace in Fahrenheit") +
   theme_minimal(base_size = 13) +
   theme(
     plot.title = element_text(face = "bold", size = 19, color = "#243b3a"),
+    plot.subtitle = element_text(color = "#5f6b66", margin = margin(b = 12)),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    axis.text = element_text(color = "#5f6b66"),
+    plot.background = element_rect(fill = "#fffaf4", color = NA),
+    panel.background = element_rect(fill = "#fffaf4", color = NA)
+  )
+```
+
+```{r}
+#| label: rainfall-plot
+#| fig-cap: "Hourly rainfall precipitation in inches."
+#| fig-width: 10
+#| fig-height: 3.5
+#| out-width: 100%
+
+ggplot(weather, aes(x = time, y = precipitation_inches)) +
+  geom_col(fill = "#277da1") +
+  scale_x_datetime(date_breaks = "1 day", date_labels = "%b %d") +
+  scale_y_continuous(labels = \(x) paste0(x, " in")) +
+  labs(x = NULL, y = NULL,
+       title = "Hourly Precipitation",
+       subtitle = "Rainfall measured in inches") +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, color = "#243b3a"),
     plot.subtitle = element_text(color = "#5f6b66", margin = margin(b = 12)),
     panel.grid.minor = element_blank(),
     panel.grid.major.x = element_blank(),
