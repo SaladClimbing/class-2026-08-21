@@ -11,6 +11,7 @@ format:
       body { background: #fffaf4; }
       .quarto-title-block { max-width: 900px; margin: 0 auto; }
       .quarto-figure { margin-top: 1.5rem; }
+      .cell { display: flex; flex-direction: column-reverse; }
 ---
 
 ```{r}
